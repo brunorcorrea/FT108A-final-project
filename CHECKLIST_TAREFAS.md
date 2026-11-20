@@ -75,27 +75,200 @@
 
 ## 2. Escrita da Seção 3 — Metodologia (Artigo IEEE)
 
-- [ ] **2.1. Preencher e revisar o texto definitivo da Seção 3 (Metodologia)**
-  - Converter o texto da proposta para o tempo passado, preenchendo todas as lacunas `[...]` com a divisão **Treino (70%) / Validação (15%) / Teste (15%)**, as 3 abordagens de balanceamento e o monitoramento multi-métrica (`AUC-ROC`, `F1` e `F2` com `refit='F1'`).
+- [x] **2.1. Preencher e revisar o texto definitivo da Seção 3 (Metodologia) no Overleaf (`IEEEtran`)**
+  - Converter o texto da proposta para o tempo passado, detalhando a filtragem da coorte ($11.933 \rightarrow 7.809 \rightarrow 7.723 \rightarrow 3.947$), as 20 variáveis preditoras, a divisão **Treino (70%) / Validação (15%) / Teste (15%)**, as 3 abordagens de balanceamento, o monitoramento multi-métrica (`AUC-ROC`, `F1` e `F2` com `refit='F1'`) e as citações BibTeX (`\cite{...}`).
   - **Como finalizar a demanda:**
-    - Copiar o texto **já preenchido abaixo** e colar diretamente no documento compartilhado do grupo (Overleaf / Word / Google Docs no formato IEEE).
+    - Colar o bloco LaTeX abaixo diretamente em `\section{Metodologia}\label{sec:metodologia}` no Overleaf e adicionar as entradas abaixo no arquivo `bibliografia.bib`.
 
-### Texto da Seção 3 Já Preenchido com os Dados do Código (Pronto para Colar no Artigo)
+### Código LaTeX da Seção III — Metodologia (Pronto para o Overleaf)
 
-> ### 3. Metodologia
-> 
-> **3.1. Conjunto de Dados e Pré-processamento**  
-> Este estudo utilizou dados da coorte NHANES (*National Health and Nutrition Examination Survey*) referente ao ciclo 2021–2023. Após a filtragem de participantes adultos ($\ge 20$ anos), exclusão de gestantes e definição do desfecho cardiovascular ($N = 7.723$ elegíveis, com $12,7\%$ de prevalência de DCV), foram selecionadas 20 variáveis preditoras demográficas, clínicas, comportamentais e laboratoriais (12 contínuas e 8 categóricas/binárias) e removidos os registros com valores ausentes (*complete-case analysis*), totalizando **3.947 registros completos**. A variável-alvo binária indica a presença ou o registro de doenças cardiovasculares (insuficiência cardíaca, doença coronariana, angina, infarto agudo do miocárdio ou acidente vascular cerebral), apresentando distribuição desbalanceada com **11,4% de casos pertencentes à classe positiva (450 registros)** e **88,6% à classe negativa (3.497 registros)**.
-> 
-> Os dados foram divididos de forma estratificada na proporção de **70% / 15% / 15%** entre os conjuntos de **treinamento** (**2.762** amostras, sendo 315 positivas), **validação** (**592** amostras, sendo 67 positivas) e **teste** (**593** amostras, sendo 68 positivas), permanecendo o conjunto de teste estritamente reservado à avaliação final dos modelos. Para evitar vazamento de informações (*data leakage*), todas as etapas de transformação — incluindo a codificação de variáveis categóricas via **`OneHotEncoder`** e a padronização de atributos numéricos contínuos via **`StandardScaler`** — foram encapsuladas por meio das estruturas `Pipeline` e `ColumnTransformer` das bibliotecas *scikit-learn* e *imbalanced-learn*, com ajuste exclusivo sobre os dados de treinamento.
-> 
-> **3.2. Algoritmos, Treinamento e Tratamento do Desbalanceamento**  
-> Foram aplicados e comparados cinco algoritmos de aprendizado de máquina supervisionado de diferentes níveis de complexidade: Regressão Logística (RL), adotada como modelo linear de referência; *K-Nearest Neighbors* (KNN), baseado na proximidade entre observações; Árvore de Decisão (AD), fundamentada em regras de decisão individuais; *Random Forest* (RF), baseado na combinação de múltiplas árvores independentes; e XGBoost, que emprega árvores construídas sequencialmente via *gradient boosting*.
-> 
-> Para investigar o impacto do desbalanceamento de classes sobre a sensibilidade dos classificadores, cada um dos cinco algoritmos foi treinado e avaliado sob **três abordagens experimentais**: (i) **Sem Reamostragem** (distribuição original desbalanceada); (ii) **Sobreamostragem Sintética via `SMOTE`** (*Synthetic Minority Over-sampling Technique*); e (iii) **Subamostragem Aleatória via `RandomUnderSampler`**, sendo qualquer reamostragem aplicada exclusivamente aos dados de treinamento de cada partição. O treinamento e o ajuste de hiperparâmetros dos 15 experimentos resultantes ($3 \times 5$) foram conduzidos sobre o conjunto de treinamento utilizando validação cruzada estratificada com cinco partições ($k=5$) associada ao método **`RandomizedSearchCV`** (20 iterações por modelo), monitorando simultaneamente **AUC-ROC**, **F1-score** e **F2-score** com seleção de hiperparâmetros (`refit`) pelo **F1-score** (evitando a dupla penalização da precisão nas partições já balanceadas por reamostragem) e acompanhamento intermediário no conjunto de validação (15%). Os principais hiperparâmetros explorados compreenderam: penalidade ($L_1, L_2$) e regularização $C \in [0,01; 10]$ na RL; número de vizinhos $k \in [3, 30]$, métrica de distância ($p \in \{1, 2\}$) e ponderação na KNN; profundidade máxima ($[3, 15]$), critério de divisão (*Gini* ou entropia) e mínimo de amostras por folha e divisão na AD; número de árvores ($[100, 400]$), profundidade máxima ($[4, 15]$) e subconjunto de atributos na RF; e número de estimadores ($[100, 400]$), taxa de aprendizado ($[0,01; 0,15]$), profundidade máxima ($[2, 7]$) e taxas de subamostragem no XGBoost.
-> 
-> **3.3. Métricas de Avaliação**  
-> O desempenho preditivo nos conjuntos de validação e teste foi mensurado por meio de acurácia, precisão, *recall* (sensibilidade), F1-score, F2-score e área sob a curva ROC (AUC-ROC). Deu-se ênfase principal à AUC-ROC, a fim de avaliar a capacidade global de discriminação entre as classes, e ao F2-score ($\beta = 2$), que atribui peso superior ao *recall* em relação à precisão, priorizando a redução de falsos negativos na identificação de indivíduos com DCV em um cenário de triagem clínica.
+```latex
+\section{Metodologia}\label{sec:metodologia}
+
+\subsection{Conjunto de Dados e Pré-processamento}\label{subsec:dados}
+Os dados provêm do ciclo 2021--2023 do \textit{National Health and Nutrition Examination Survey} (NHANES), inicialmente com 11.933 participantes. A coorte foi restrita a adultos ($\ge 20$ anos; $n = 7.809$), faixa etária à qual se aplica o questionário de condições médicas. A variável-alvo binária (\texttt{target}) foi definida a partir do relato prévio de diagnóstico médico de insuficiência cardíaca congestiva (\texttt{MCQ160B}), doença arterial coronariana (\texttt{MCQ160C}), angina (\texttt{MCQ160D}), infarto agudo do miocárdio (\texttt{MCQ160E}) ou acidente vascular cerebral (\texttt{MCQ160F}), atribuindo-se $1$ na presença de ao menos uma condição e $0$ na ausência confirmada de todas. Após descartar respostas indeterminadas (recusa ou desconhecimento, códigos 7 e 9) e excluir gestantes (\texttt{RIDEXPRG} $= 1$), restaram 7.723 adultos elegíveis (982 positivos; 12,72\%).
+
+Na etapa de limpeza e engenharia de atributos, as leituras de pressão arterial sistólica e diastólica foram consolidadas pela média da segunda e terceira aferições (com \textit{fallback} para a primeira leitura), e os valores ausentes de colesterol total e triglicerídeos na amostra de referência foram complementados pelo painel bioquímico padrão. Foram derivadas variáveis ordinais para tabagismo (nunca fumou, fumante diário, fumante ocasional e ex-fumante) e consumo de álcool (abstêmio, ocasional, moderado e intenso).
+
+Foram selecionadas 20 variáveis preditoras: 12 contínuas (idade, razão renda familiar/pobreza [PIR], índice de massa corporal [IMC], circunferência da cintura, pressão arterial sistólica e diastólica, colesterol total, colesterol HDL, triglicerídeos, hemoglobina glicada [HbA1c], proteína C-reativa de alta sensibilidade [PCR] e creatinina sérica) e 8 categóricas ou binárias (sexo, raça/etnia, escolaridade, tabagismo, consumo de álcool e diagnósticos autorreferidos de diabetes, hipertensão e dislipidemia). Para evitar a introdução de valores artificiais em biomarcadores laboratoriais antes da reamostragem, adotou-se a análise de casos completos (\texttt{dropna}), resultando na amostra analítica final de $N = 3.947$ participantes, com 450 casos positivos (11,40\%) e 3.497 negativos (88,60\%).
+
+A base final foi dividida de forma estratificada na proporção de 70\% para treinamento (2.762 amostras; 315 positivas, 11,40\%), 15\% para validação (592 amostras; 67 positivas, 11,32\%) e 15\% para teste (593 amostras; 68 positivas, 11,47\%), mantendo-se o conjunto de teste estritamente isolado para a avaliação final. A preparação dos atributos foi encapsulada em um \texttt{ColumnTransformer} (\textit{scikit-learn}), aplicando padronização (\texttt{StandardScaler}) às 12 variáveis contínuas e codificação binária (\texttt{OneHotEncoder}) às 8 variáveis categóricas, ajustadas exclusivamente sobre os dados de treinamento para impedir vazamento de informação (\textit{data leakage}).
+
+\subsection{Algoritmos, Balanceamento e Ajuste de Hiperparâmetros}\label{subsec:treinamento}
+Foram avaliados cinco classificadores supervisionados de diferentes famílias algorítmicas: Regressão Logística (RL) \cite{cox1958regressao}, como modelo linear de referência; \textit{K-Nearest Neighbors} (KNN) \cite{cover1967knn}, baseado em distância entre instâncias; Árvore de Decisão (AD) \cite{breiman1984cart}, baseada em particionamento recursivo; \textit{Random Forest} (RF) \cite{breiman2001rf}, comitê em paralelo baseado em \textit{bagging}; e XGBoost \cite{chen2016xgboost}, comitê sequencial baseado em \textit{gradient boosting}.
+
+Para investigar o efeito do desbalanceamento de classes (11,40\% de positivos), cada algoritmo foi submetido a três abordagens experimentais integradas via \texttt{ImbPipeline} (\textit{imbalanced-learn}), aplicadas exclusivamente dentro das partições de treinamento \cite{he2009desbalanceamento}:
+\begin{enumerate}
+    \item \textit{Sem Reamostragem (Baseline)}: treinamento direto sobre a distribuição original desbalanceada;
+    \item \textit{SMOTE (\textit{Over-sampling})} \cite{chawla2002smote}: geração sintética de exemplos da classe minoritária por interpolação entre vizinhos próximos até o equilíbrio entre as classes;
+    \item \textit{RandomUnderSampler (\textit{Under-sampling})} \cite{he2009desbalanceamento}: subamostragem aleatória da classe majoritária até igualar o número de exemplos reais da classe positiva.
+\end{enumerate}
+
+O treinamento e a otimização dos hiperparâmetros dos 15 experimentos resultantes ($3 \times 5$) foram conduzidos sobre o conjunto de treinamento utilizando validação cruzada estratificada com cinco partições ($k = 5$) associada ao \texttt{RandomizedSearchCV} (20 iterações por configuração, semente fixa igual a 42). Durante a validação cruzada, monitoraram-se simultaneamente a AUC-ROC, o F1-score e o F2-score, adotando-se o F1-score como critério de seleção final dos hiperparâmetros (\texttt{refit}), de modo a preservar o equilíbrio entre precisão e sensibilidade sem penalizar duplamente a precisão nas partições já balanceadas em 50\%/50\% pela reamostragem. O conjunto de validação (15\%) foi utilizado para verificação intermediária dos modelos ajustados.
+
+O espaço de busca compreendeu: penalidade ($L_1, L_2$) e constante de regularização $C \in [0,01; 10]$ na RL; número de vizinhos $k \in [3, 30]$, métrica de Minkowski ($p \in \{1, 2\}$) e ponderação por distância no KNN; profundidade máxima ($[3, 15]$), critério de pureza (\textit{Gini} ou entropia) e mínimo de amostras por divisão ($[2, 19]$) e por folha ($[2, 14]$) na AD; número de árvores ($[100, 399]$), profundidade máxima ($[4, 15]$) e subconjunto de atributos (\texttt{sqrt} ou \texttt{log2}) no RF; e número de árvores ($[100, 399]$), taxa de aprendizado ($[0,01; 0,15]$), profundidade máxima ($[2, 7]$) e taxas de subamostragem de instâncias e colunas ($[0,6; 1,0]$) no XGBoost.
+
+\subsection{Critérios e Métricas de Avaliação}\label{subsec:metricas}
+O desempenho final no conjunto de teste independente ($n = 593$) foi mensurado por acurácia, precisão, \textit{recall} (sensibilidade), F1-score, F2-score e área sob a curva ROC (AUC-ROC) \cite{fawcett2006roc,sokolova2009metricas}, além da análise das matrizes de confusão normalizadas e da sobreposição das curvas ROC. Deu-se ênfase principal à AUC-ROC, para avaliar a capacidade global de discriminação independentemente do limiar de decisão \cite{fawcett2006roc}, e ao F2-score ($\beta = 2$) \cite{sokolova2009metricas}, definido por:
+\begin{equation}
+    F_2 = \frac{5 \cdot \text{Precisão} \cdot \text{Recall}}{4 \cdot \text{Precisão} + \text{Recall}},
+\end{equation}
+que atribui peso superior ao \textit{recall} em relação à precisão, priorizando a redução de falsos negativos na identificação de indivíduos com DCV em um cenário de triagem clínica.
+```
+
+### Entradas BibTeX Correspondentes (`bibliografia.bib`)
+
+```bibtex
+@misc{oms2025dcv,
+  author       = {{World Health Organization}},
+  title        = {Cardiovascular diseases ({CVDs})},
+  year         = {2025},
+  howpublished = {\url{https://www.who.int/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)}},
+  note         = {Acesso em: 01 nov. 2026}
+}
+
+@article{ameen2024advances,
+  author  = {Ameen, Asmaa and others},
+  title   = {Advances in {ECG} and {PCG}-based cardiovascular disease classification: a review of deep learning and machine learning methods},
+  journal = {Journal of Big Data},
+  volume  = {11},
+  pages   = {159},
+  year    = {2024},
+  doi     = {10.1186/s40537-024-01011-7}
+}
+
+@article{curado2021cost,
+  author  = {Curado, Daniel da Silva Pereira and others},
+  title   = {Direct cost of systemic arterial hypertension and its complications in the circulatory system from the perspective of the {Brazilian} public health system in 2019},
+  journal = {PLOS ONE},
+  volume  = {16},
+  number  = {6},
+  pages   = {e0253063},
+  year    = {2021},
+  doi     = {10.1371/journal.pone.0253063}
+}
+
+@article{xu2025development,
+  author  = {Xu, Chunming and others},
+  title   = {Development and validation of a machine learning model for cardiovascular disease risk prediction in type 2 diabetes patients},
+  journal = {Scientific Reports},
+  volume  = {15},
+  pages   = {32818},
+  year    = {2025},
+  doi     = {10.1038/s41598-025-18443-7}
+}
+
+@article{li2023vies,
+  author  = {Li, Y. and others},
+  title   = {Machine learning for cardiovascular risk prediction and stratification in large clinical cohorts},
+  journal = {European Heart Journal - Digital Health},
+  volume  = {4},
+  pages   = {1--10},
+  year    = {2023}
+}
+
+@article{singh2024risco,
+  author  = {Singh, Manasvi and others},
+  title   = {Artificial intelligence for cardiovascular disease risk assessment in personalised framework: a scoping review},
+  journal = {eClinicalMedicine},
+  volume  = {73},
+  pages   = {102660},
+  year    = {2024},
+  doi     = {10.1016/j.eclinm.2024.102660}
+}
+
+@article{cox1958regressao,
+  author  = {Cox, David R.},
+  title   = {The Regression Analysis of Binary Sequences},
+  journal = {Journal of the Royal Statistical Society: Series B (Methodological)},
+  volume  = {20},
+  number  = {2},
+  pages   = {215--242},
+  year    = {1958}
+}
+
+@article{cover1967knn,
+  author  = {Cover, Thomas and Hart, Peter},
+  title   = {Nearest neighbor pattern classification},
+  journal = {IEEE Transactions on Information Theory},
+  volume  = {13},
+  number  = {1},
+  pages   = {21--27},
+  year    = {1967},
+  doi     = {10.1109/TIT.1967.1053964}
+}
+
+@book{breiman1984cart,
+  author    = {Breiman, Leo and Friedman, Jerome H. and Olshen, Richard A. and Stone, Charles J.},
+  title     = {Classification and Regression Trees},
+  publisher = {Wadsworth International Group},
+  address   = {Belmont, CA, USA},
+  year      = {1984}
+}
+
+@article{breiman2001rf,
+  author  = {Breiman, Leo},
+  title   = {Random Forests},
+  journal = {Machine Learning},
+  volume  = {45},
+  number  = {1},
+  pages   = {5--32},
+  year    = {2001},
+  doi     = {10.1023/A:1010933404324}
+}
+
+@inproceedings{chen2016xgboost,
+  author    = {Chen, Tianqi and Guestrin, Carlos},
+  title     = {{XGBoost}: A Scalable Tree Boosting System},
+  booktitle = {Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+  pages     = {785--794},
+  year      = {2016},
+  doi       = {10.1145/2939672.2939785}
+}
+
+@article{he2009desbalanceamento,
+  author  = {He, Haibo and Garcia, Edwardo A.},
+  title   = {Learning from Imbalanced Data},
+  journal = {IEEE Transactions on Knowledge and Data Engineering},
+  volume  = {21},
+  number  = {9},
+  pages   = {1263--1284},
+  year    = {2009},
+  doi     = {10.1109/TKDE.2008.239}
+}
+
+@article{chawla2002smote,
+  author  = {Chawla, Nitesh V. and Bowyer, Kevin W. and Hall, Lawrence O. and Kegelmeyer, W. Philip},
+  title   = {{SMOTE}: Synthetic Minority Over-sampling Technique},
+  journal = {Journal of Artificial Intelligence Research},
+  volume  = {16},
+  pages   = {321--357},
+  year    = {2002},
+  doi     = {10.1613/jair.953}
+}
+
+@article{fawcett2006roc,
+  author  = {Fawcett, Tom},
+  title   = {An Introduction to {ROC} Analysis},
+  journal = {Pattern Recognition Letters},
+  volume  = {27},
+  number  = {8},
+  pages   = {861--874},
+  year    = {2006},
+  doi     = {10.1016/j.patrec.2005.10.010}
+}
+
+@article{sokolova2009metricas,
+  author  = {Sokolova, Marina and Lapalme, Guy},
+  title   = {A Systematic Analysis of Performance Measures for Classification Tasks},
+  journal = {Information Processing \& Management},
+  volume  = {45},
+  number  = {4},
+  pages   = {427--437},
+  year    = {2009},
+  doi     = {10.1016/j.ipm.2009.03.002}
+}
+```
 
 ---
 
